@@ -5,8 +5,8 @@ import time
 
 def play_alarm():
     # Rapid fire beeps
-    for _ in range(8):
-        winsound.Beep(2500, 150) # Shorter, faster beeps
+    for _ in range(5):
+        winsound.Beep(2000, 50) # Shorter, faster beeps
         time.sleep(0.05)
 
 def trigger_visual_alert():
