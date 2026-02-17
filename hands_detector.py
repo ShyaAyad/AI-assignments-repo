@@ -3,6 +3,7 @@
 import cv2
 import mediapipe as mp
 import json
+import time
 
 # MediaPipe Setup
 mp_hands = mp.solutions.hands
@@ -30,6 +31,11 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 cv2.namedWindow("Vision Agent", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Vision Agent", 1000, 700)
+
+prev_landmarks = None
+movement_threshold = 0.03
+last_movement_time = 0
+still_time_required = 0.5
 
 while True:
     ret, frame = cap.read()
@@ -60,10 +66,41 @@ while True:
                 "z": lm.z
             })
 
+        # default hand movements 
+        hand_moving = True 
+        hand_still = False
+        
+        if prev_landmarks is not None:
+            total_movement = 0
+            for i in range(21):
+                dx = landmarks_list[i]["x"] - prev_landmarks[i]["x"]
+                dy = landmarks_list[i]["y"] - prev_landmarks[i]["y"]
+                dz = landmarks_list[i]["z"] - prev_landmarks[i]["z"]
+                
+                dist = (dx**2 + dy**2 + dz**2)**0.5             
+                if dist < 0.002:  # ignore micro jitter
+                    dist = 0
+                total_movement += dist
+            hand_moving = total_movement >= movement_threshold
+            
+            # detect if hand is moving or not
+            current_time = time.time()
+            if hand_moving:
+                last_movement_time = current_time
+                hand_still = False
+            else:
+                if current_time - last_movement_time >= still_time_required:
+                    hand_still = True
+                else:
+                    hand_still = False
+
+        prev_landmarks = landmarks_list
         # Send json format response for the next agent that detects the signs 
         send_data({
             "hand_detected": True,
-            "landmarks": landmarks_list
+            "landmarks": landmarks_list,
+            "hand_moving": hand_moving,
+            "hand_still": hand_still
         })
 
     else:
