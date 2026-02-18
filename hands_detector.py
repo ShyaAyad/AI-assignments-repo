@@ -17,6 +17,16 @@ hands = mp_hands.Hands(
 
 # Communication file with the next agent
 OUTPUT_FILE = "hand_data.txt"
+INPUT_FILE = "result.txt" # coming from the human_detector_agent
+
+# Read data from human_detector_agent
+def person_present():
+    try:
+        with open(INPUT_FILE, "r") as f:
+            data = json.load(f)
+            return data.get("person_detected", False)
+    except:
+        return False
 
 # Send data to next agent
 def send_data(data):
@@ -41,6 +51,25 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
+    # Check previous agent result
+    if not person_present():
+        # No person → skip hand detection
+        send_data({
+            "person_detected": False,
+            "hand_detected": False,
+            "landmarks": None
+        })
+        # this should be another message 
+        cv2.putText(frame, "No Person Detected", (10, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        
+        cv2.imshow("Vision Agent", frame)
+        
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
+        
+        continue   # skip the rest of the loop
+
 
     frame = cv2.flip(frame, 1)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -97,6 +126,7 @@ while True:
         prev_landmarks = landmarks_list
         # Send json format response for the next agent that detects the signs 
         send_data({
+            "person_detected": True,
             "hand_detected": True,
             "landmarks": landmarks_list,
             "hand_moving": hand_moving,
