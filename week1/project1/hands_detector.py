@@ -32,6 +32,10 @@ def person_present():
 def send_data(data):
     with open(OUTPUT_FILE, "w") as f:
         f.write(json.dumps(data))
+        
+# if no person is detected then terminate the program
+if not person_present():
+    exit();
 
 # Camera Setup
 cap = cv2.VideoCapture(0)
