@@ -1,0 +1,5 @@
+{
+    "hand_detected": false,
+    "gesture": "None",
+    "timestamp": 1771491836.3280175
+}
