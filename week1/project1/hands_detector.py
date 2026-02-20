@@ -1,9 +1,11 @@
-# pip install mediapipe opencv-python numpy (Install this in the terminal first)
+# pip install mediapipe opencv-python numpy (Install this in the terminal first works only on python version 3.12.5 and below)
 
 import cv2
 import mediapipe as mp
 import json
 import time
+import sys
+import os
 
 # MediaPipe Setup
 mp_hands = mp.solutions.hands
@@ -19,14 +21,23 @@ hands = mp_hands.Hands(
 OUTPUT_FILE = "hand_data.txt"
 INPUT_FILE = "result.txt" # coming from the human_detector_agent
 
-# Read data from human_detector_agent
 def person_present():
     try:
+        if not os.path.exists(INPUT_FILE):
+            sys.exit(0)
+
         with open(INPUT_FILE, "r") as f:
             data = json.load(f)
-            return data.get("person_detected", False)
+
+        if data.get("person_detected") is not True:
+            sys.exit(0)
+
+        return True  # only continue if person_detected is True
+
     except:
-        return False
+        sys.exit(0)
+
+person_present()  # check if person is detected before starting hand detection
 
 # Send data to next agent
 def send_data(data):
@@ -34,8 +45,8 @@ def send_data(data):
         f.write(json.dumps(data))
         
 # if no person is detected then terminate the program
-if not person_present():
-    exit();
+# if not person_present():
+#     exit();
 
 # Camera Setup
 cap = cv2.VideoCapture(0)
@@ -63,7 +74,6 @@ while True:
             "hand_detected": False,
             "landmarks": None
         })
-        # this should be another message 
         cv2.putText(frame, "No Person Detected", (10, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         
