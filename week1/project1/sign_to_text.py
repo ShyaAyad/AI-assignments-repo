@@ -1,3 +1,4 @@
+
 # pip install numpy
 
 import json
@@ -65,16 +66,18 @@ def detect_gesture(landmarks):
     return "Unknown"
 
 
-print("Gesture detector running... (Press CTRL+C to stop)")
-
 # ---------- MAIN LOOP ----------
 while True:
-
     # Read hand_data.txt
     try:
         with open(INPUT_FILE, "r") as f:
-            hand_data = json.load(f)
-    except:
+            # Check if file is empty before loading
+            content = f.read()
+            if not content:
+                hand_data = {"hand_detected": False}
+            else:
+                hand_data = json.loads(content)
+    except Exception:
         hand_data = {"hand_detected": False}
 
     hand_detected = hand_data.get("hand_detected", False)
@@ -94,8 +97,16 @@ while True:
     with open(OUTPUT_FILE, "w") as f:
         json.dump(output_data, f, indent=4)
 
-    # Small delay (prevents CPU overload)
+    # --- THE STOP CONDITION ---
+    # We stop the script if a real gesture was found and saved
+    if gesture != "None" or hand_detected == False:
+        break 
+
+    
+
+    # Small delay
     time.sleep(0.1)
+
 
 
 
