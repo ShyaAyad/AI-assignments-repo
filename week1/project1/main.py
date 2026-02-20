@@ -27,7 +27,7 @@ except subprocess.TimeoutExpired:
 
 try:
     result = subprocess.run(
-        ["python", os.path.join(base, "alert_agnet.py")]
+        ["python", os.path.join(base, "alert_agent.py")]
     )
 except:
     pass
