@@ -2,40 +2,69 @@ import tkinter as tk
 import winsound
 import threading
 import time
+import json
+import os
+import sys
+
+# ---------- 1. PRE-RUN CHECK ----------
+OUTPUT_FILE = "detected_sign.txt"
+
+if os.path.exists(OUTPUT_FILE):
+    try:
+        with open(OUTPUT_FILE, "r") as f:
+            data = json.load(f)
+
+            if data.get("gesture") != "Unknown" or data.get("gesture") == "None":
+                sys.exit()
+    except:
+        sys.exit()
+else:
+    sys.exit()
+
+# ---------- 2. ALERT LOGIC ----------
 
 def play_alarm():
-    # Rapid fire beeps
-    for _ in range(5):
-        winsound.Beep(2000, 50) # Shorter, faster beeps
+    for _ in range(4):
+        winsound.Beep(2000, 50)
         time.sleep(0.05)
+
+def clear_files():
+    files_to_clear = [
+        "result.txt",
+        "hand_data.txt",
+        "detected_sign.txt"
+    ]
+
+    for file in files_to_clear:
+        try:
+            if os.path.exists(file):
+                open(file, "w").close()   # Clears file content
+        except:
+            pass
 
 def trigger_visual_alert():
     root = tk.Tk()
     root.title("Security Alert")
-    
-    # 1. Full Screen Mode
+
     root.attributes("-fullscreen", True)
     root.attributes("-topmost", True)
     root.configure(bg='black')
-    
-    # 2. Big Red Text
+
     label = tk.Label(
-        root, 
-        text="ERROR:\nWRONG MOVEMENT", 
-        fg="red", 
-        bg="black", 
-        font=("Arial", 70, "bold") # Even bigger for full screen
+        root,
+        text="ERROR:\nWRONG MOVEMENT",
+        fg="red",
+        bg="black",
+        font=("Arial", 70, "bold")
     )
     label.pack(expand=True)
 
-    # 3. Start Sound
     sound_thread = threading.Thread(target=play_alarm)
     sound_thread.daemon = True
     sound_thread.start()
 
-    # 4. Auto-Close Timer (3000 milliseconds = 3 seconds)
-    # This makes it "faster" by closing itself automatically
-    root.after(3000, root.destroy)
+    # After 3 seconds:
+    root.after(3000, lambda: [clear_files(), root.destroy()])
 
     root.mainloop()
 
