@@ -1,4 +1,7 @@
-import pyttsx3
+# Requirements:
+# pip install pyttsx3
+
+import pyttsx3   
 import os
 import time
 
