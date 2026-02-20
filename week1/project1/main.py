@@ -1,21 +1,24 @@
 import subprocess
+import os
+
+base = os.path.dirname(os.path.abspath(__file__))
 
 # # 1
 try:
-    subprocess.run(["python", "human_detector_agent.py"], timeout=15)
+    subprocess.run(["python",  os.path.join(base, "human_detector_agent.py")], timeout=15)
 except subprocess.TimeoutExpired:
     pass
 
 # # 3
 try:
-    subprocess.run(["python", "hands_detector.py"], timeout=20)
+    subprocess.run(["python",  os.path.join(base, "hands_detector.py")], timeout=20)
 except subprocess.TimeoutExpired:
     pass
 
 # # 5
 
 try:
-    subprocess.run(["python", "sign_to_text.py"])
+    subprocess.run(["python", os.path.join(base, "sign_to_text.py")])
 except subprocess.TimeoutExpired:
     pass
 
@@ -24,7 +27,7 @@ except subprocess.TimeoutExpired:
 
 try:
     result = subprocess.run(
-        ["python", "alert_agnet.py"]
+        ["python", os.path.join(base, "alert_agnet.py")]
     )
 except:
     pass
@@ -32,12 +35,12 @@ except:
 
 # 6 
 try:
- subprocess.run(["python", "text_to_speech.py"])      
+ subprocess.run(["python", os.path.join(base, "text_to_speech.py")])      
 except subprocess.TimeoutExpired:
         pass
 
 # 7
 try:
-    subprocess.run(["python", "cleaner.py"])
+    subprocess.run(["python", os.path.join(base, "cleaner.py")])
 except subprocess.TimeoutExpired:
     pass
