@@ -26,7 +26,7 @@ The system runs a pipeline of agents in sequence:
 
 2. Install the required libraries
 ```bash
-   pip install mediapipe ultralytics numpy pyttsx3
+   pip install opencv-python mediapipe ultralytics numpy pyttsx3
 ```
 
 ## Usage
