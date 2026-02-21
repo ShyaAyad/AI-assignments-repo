@@ -40,6 +40,6 @@ project2/responder file/
    speech_to_text.py    Listens to your voice via microphone
    response.py          Connects to Gemini AI to get answers
    text_to_speech.py    Reads the AI's answer aloud
-   agent.txt            Input: Instructions for the AI's personality
-   output.txt           Output: Logs the full AI response
+   agent.txt            Answer from AI to the user
+   output.txt           Question from the user to AI
 ```
