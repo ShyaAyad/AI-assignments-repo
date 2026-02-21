@@ -1,9 +1,6 @@
-# pip install mediapipe opencv-python numpy (Install this in the terminal first works only on python version 3.12.5 and below)
-
 import cv2
 import mediapipe as mp
 import json
-import time
 import sys
 import os
 
@@ -43,10 +40,6 @@ person_present()  # check if person is detected before starting hand detection
 def send_data(data):
     with open(OUTPUT_FILE, "w") as f:
         f.write(json.dumps(data))
-        
-# if no person is detected then terminate the program
-# if not person_present():
-#     exit();
 
 # Camera Setup
 cap = cv2.VideoCapture(0)
@@ -57,18 +50,13 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 cv2.namedWindow("Vision Agent", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Vision Agent", 1000, 700)
 
-prev_landmarks = None
-movement_threshold = 0.03
-last_movement_time = 0
-still_time_required = 0.5
-
 while True:
     ret, frame = cap.read()
     if not ret:
         break
     # Check previous agent result
     if not person_present():
-        # No person → skip hand detection
+        # If no person then skip hand detection
         send_data({
             "person_detected": False,
             "hand_detected": False,
@@ -108,47 +96,16 @@ while True:
                 "y": lm.y,
                 "z": lm.z
             })
-
-        # default hand movements 
-        hand_moving = True 
-        hand_still = False
-        
-        if prev_landmarks is not None:
-            total_movement = 0
-            for i in range(21):
-                dx = landmarks_list[i]["x"] - prev_landmarks[i]["x"]
-                dy = landmarks_list[i]["y"] - prev_landmarks[i]["y"]
-                dz = landmarks_list[i]["z"] - prev_landmarks[i]["z"]
-                
-                dist = (dx**2 + dy**2 + dz**2)**0.5             
-                if dist < 0.002:  # ignore micro jitter
-                    dist = 0
-                total_movement += dist
-            hand_moving = total_movement >= movement_threshold
             
-            # detect if hand is moving or not
-            current_time = time.time()
-            if hand_moving:
-                last_movement_time = current_time
-                hand_still = False
-            else:
-                if current_time - last_movement_time >= still_time_required:
-                    hand_still = True
-                else:
-                    hand_still = False
-
-        prev_landmarks = landmarks_list
         # Send json format response for the next agent that detects the signs 
         send_data({
             "person_detected": True,
             "hand_detected": True,
             "landmarks": landmarks_list,
-            "hand_moving": hand_moving,
-            "hand_still": hand_still
         })
 
     else:
-        # Send FALSE if no hand
+        # Send False if no hand
         send_data({
             "hand_detected": False,
             "landmarks": None
